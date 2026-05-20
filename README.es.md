@@ -1,110 +1,63 @@
-# Plantilla de Proyecto de Ciencia de Datos
+# Clasificador de Adicción al Smartphone
 
-Esta plantilla está diseñada para impulsar proyectos de ciencia de datos proporcionando una configuración básica para conexiones de base de datos, procesamiento de datos, y desarrollo de modelos de aprendizaje automático. Incluye una organización estructurada de carpetas para tus conjuntos de datos y un conjunto de paquetes de Python predefinidos necesarios para la mayoría de las tareas de ciencia de datos.
+> Un clasificador de regresión logística que predice el riesgo de adicción al smartphone basándose en hábitos de uso diario — desplegado como una aplicación web interactiva con Streamlit.
 
-## Estructura
+**Demo en vivo:** [ml-webapp-project-1.onrender.com](https://ml-webapp-project-1.onrender.com/)
 
-El proyecto está organizado de la siguiente manera:
+---
 
-- **`src/app.py`** → Script principal de Python donde correrá tu proyecto.
-- **`src/explore.ipynb`** → Notebook para exploración y pruebas. Una vez finalizada la exploración, migra el código limpio a `app.py`.
-- **`src/utils.py`** → Funciones auxiliares, como conexión a bases de datos.
-- **`requirements.txt`** → Lista de paquetes de Python necesarios.
-- **`models/`** → Contendrá tus clases de modelos SQLAlchemy.
-- **`data/`** → Almacena los datasets en diferentes etapas:
-  - **`data/raw/`** → Datos sin procesar.
-  - **`data/interim/`** → Datos transformados temporalmente.
-  - **`data/processed/`** → Datos listos para análisis.
+## Problema
 
+El uso excesivo del smartphone se ha convertido en una preocupación creciente de salud pública, pero la mayoría de las personas no tienen forma de evaluar objetivamente si sus hábitos los ponen en riesgo. Este proyecto construye un clasificador binario que toma métricas simples de uso diario — tiempo de pantalla, aperturas de aplicaciones, horas en redes sociales — y predice si el patrón de comportamiento del usuario es consistente con la adicción al smartphone. El objetivo es hacer esa señal accesible a través de una interfaz limpia e interactiva que cualquiera pueda usar.
 
-## ⚡ Configuración Inicial en Codespaces (Recomendado)
+## Conjunto de datos
 
-No es necesario realizar ninguna configuración manual, ya que **Codespaces se configura automáticamente** con los archivos predefinidos que ha creado la academia para ti. Simplemente sigue estos pasos:
+- **Fuente:** [Kaggle — Smartphone Usage & Addiction Analysis](https://www.kaggle.com/) *(actualizar con el enlace directo al dataset)*
+- **Tamaño:** 7.500 filas × 15 columnas
+- **Variable objetivo:** `addicted_label` (0 = No adicto, 1 = Adicto)
+- **Características clave:** `daily_screen_time_hours`, `weekend_screen_time`, `social_media_hours`, `app_opens_per_day`, `gaming_hours`, `sleep_hours`, `notifications_per_day`, `stress_level`, `academic_work_impact`
 
-1. **Espera a que el entorno se configure automáticamente**.
-   - Todos los paquetes necesarios y la base de datos se instalarán por sí mismos.
-   - El `username` y `db_name` creados automáticamente están en el archivo **`.env`** en la raíz del proyecto.
-2. **Una vez que Codespaces esté listo, puedes comenzar a trabajar inmediatamente**.
+## Metodología
 
+1. **EDA (10 pasos):** Se exploraron distribuciones, correlaciones y balance de clases. Se detectó que el dataset es sintético — todas las características tienen distribuciones casi uniformes, lo que limita la validez en el mundo real pero permite al modelo aprender patrones significativos.
+2. **Análisis de características:** Se construyeron mapas de calor de correlación y diagramas de caja de cada variable frente al objetivo. `daily_screen_time_hours` (r = 0,58) y `weekend_screen_time` (r = 0,56) son los predictores más fuertes. Las variables categóricas (género, nivel de estrés) muestran correlación casi nula.
+3. **Ingeniería de características:** Codificación ordinal de `stress_level` y `academic_work_impact`, codificación one-hot de `gender`, y aplicación de `StandardScaler` a todas las variables numéricas.
+4. **Selección de características:** Uso de `SelectKBest` con puntuación chi-cuadrado — confirmó que el tiempo de pantalla y las horas en redes sociales impulsan la señal predictiva.
+5. **Modelado:** Regresión logística con penalización ElasticNet (`solver=saga`). `GridSearchCV` de 5 pliegues sobre `C`, `l1_ratio` y `class_weight`, optimizando el AUC-ROC.
+6. **Despliegue:** Modelo y escalador serializados con `pickle`, e integrados en una app Streamlit que recibe entradas del usuario y devuelve una predicción con probabilidades de confianza.
 
-## 💻 Configuración en Local (Solo si no puedes usar Codespaces)
+## Resultados
 
-**Prerrequisitos**
+El modelo final fue seleccionado mediante validación cruzada de 5 pliegues optimizando AUC-ROC. `daily_screen_time_hours` y `weekend_screen_time` tienen los coeficientes positivos más grandes — consistente con el análisis exploratorio. La app Streamlit muestra el desglose de confianza (ej. "No adicto: 98,4% | Adicto: 1,6%") junto a cada predicción, haciendo el resultado transparente en lugar de solo una etiqueta.
 
-Asegúrate de tener Python 3.11+ instalado en tu máquina. También necesitarás pip para instalar los paquetes de Python.
+## Tecnologías utilizadas
 
-**Instalación**
+`Python` · `pandas` · `NumPy` · `scikit-learn` · `Streamlit` · `SQLite` · `Matplotlib` · `Seaborn` · `pickle`
 
-Clona el repositorio del proyecto en tu máquina local.
-
-Navega hasta el directorio del proyecto e instala los paquetes de Python requeridos:
+## Ejecución local
 
 ```bash
+git clone https://github.com/matthewkane-ml/ML_WebApp_MTK.git
+cd ML_WebApp_MTK
 pip install -r requirements.txt
+
+# Ejecutar el EDA y entrenar el modelo primero
+python src/ML_WebAPP.py
+
+# Lanzar la app Streamlit
+streamlit run src/streamlit_app.py
 ```
 
-**Crear una base de datos (si es necesario)**
+## Capturas de pantalla
 
-Crea una nueva base de datos dentro del motor Postgres personalizando y ejecutando el siguiente comando: 
+![App Streamlit — interfaz de predicción de adicción](screenshots/app_prediction.png)
 
-```bash
-$ psql -U postgres -c "DO \$\$ BEGIN 
-    CREATE USER mi_usuario WITH PASSWORD 'mi_contraseña'; 
-    CREATE DATABASE mi_base_de_datos OWNER mi_usuario; 
-END \$\$;"
-```
-Conéctate al motor Postgres para usar tu base de datos, manipular tablas y datos: 
+## Próximos pasos
 
-```bash
-$ psql -U mi_usuario -d mi_base_de_datos
-```
+- Entrenar con datos reales (ej. exportaciones de Screen Time de iOS o Digital Wellbeing de Android) para mejorar la validez más allá de datos sintéticos
+- Añadir explicabilidad con SHAP para que los usuarios vean qué hábito específico impulsa su puntuación de riesgo
+- Probar modelos basados en árboles (Random Forest, XGBoost) para capturar interacciones no lineales entre características
 
-¡Una vez que estés dentro de PSQL podrás crear tablas, hacer consultas, insertar, actualizar o eliminar datos y mucho más!
+---
 
-**Variables de entorno**
-
-Crea un archivo .env en el directorio raíz del proyecto para almacenar tus variables de entorno, como tu cadena de conexión a la base de datos:
-
-```makefile
-DATABASE_URL="postgresql://<USUARIO>:<CONTRASEÑA>@<HOST>:<PUERTO>/<NOMBRE_BD>"
-
-#example
-DATABASE_URL="postgresql://mi_usuario:mi_contraseña@localhost:5432/mi_base_de_datos"
-```
-
-## Ejecutando la Aplicación
-
-Para ejecutar la aplicación, ejecuta el script app.py desde la raíz del directorio del proyecto:
-
-```bash
-python src/app.py
-```
-
-## Añadiendo Modelos
-
-Para añadir clases de modelos SQLAlchemy, crea nuevos archivos de script de Python dentro del directorio models/. Estas clases deben ser definidas de acuerdo a tu esquema de base de datos.
-
-Definición del modelo de ejemplo (`models/example_model.py`):
-
-```py
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
-
-Base = declarative_base()
-
-class ExampleModel(Base):
-    __tablename__ = 'example_table'
-    id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
-```
-
-## Trabajando con Datos
-
-Puedes colocar tus conjuntos de datos brutos en el directorio data/raw, conjuntos de datos intermedios en data/interim, y los conjuntos de datos procesados listos para el análisis en data/processed.
-
-Para procesar datos, puedes modificar el script app.py para incluir tus pasos de procesamiento de datos, utilizando pandas para la manipulación y análisis de datos.
-
-## Contribuyentes
-
-Este proyecto es mantenido por [matthewkane-ml](https://github.com/matthewkane-ml).
+**Autor:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-kane-392094410/) · [Portafolio GitHub](https://github.com/matthewkane-ml)
