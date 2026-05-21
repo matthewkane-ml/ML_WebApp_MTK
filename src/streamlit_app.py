@@ -31,9 +31,9 @@ if st.button("Predict", use_container_width=True):
     result = model.predict(scaled)[0]
 
     if result == 1:
-        st.error(" Prediction: **Addicted**")
+        st.error("📵 Prediction: **Addicted**")
     else:
-        st.success(" Prediction: **Not Addicted**")
+        st.success("✅ Prediction: **Not Addicted**")
 
     proba = model.predict_proba(scaled)[0]
     st.markdown(f"**Confidence:** Not Addicted `{proba[0]:.1%}` | Addicted `{proba[1]:.1%}`")

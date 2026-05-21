@@ -41,16 +41,22 @@ git clone https://github.com/matthewkane-ml/ML_WebApp_MTK.git
 cd ML_WebApp_MTK
 pip install -r requirements.txt
 
-# Run EDA + model training first
+# Step 1 — Run EDA + train and save the model
 python src/ML_WebAPP.py
 
-# Launch the Streamlit app
+# Step 2a — Launch the Streamlit app (recommended)
 streamlit run src/streamlit_app.py
+
+# Step 2b — Or run the Flask app instead
+python src/app.py
+# Then open http://127.0.0.1:5000 in your browser
 ```
 
 ## Screenshots
 
 ![Streamlit app — addiction prediction interface](screenshots/app_prediction.png)
+![Model evaluation — confusion matrix, ROC curve, and feature coefficients](screenshots/model_evaluation.png)
+![Feature selection — chi-square scores by feature](screenshots/feature_selection.png)
 
 ## What I'd do next
 
