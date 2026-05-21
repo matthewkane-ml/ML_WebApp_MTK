@@ -12,7 +12,7 @@ Smartphone overuse has become a growing public health concern, but most people h
 
 ## Dataset
 
-- **Source:** [Kaggle — Smartphone Usage & Addiction Analysis](https://www.kaggle.com/) *(update with direct dataset link)*
+- **Source:** [Kaggle — Smartphone Usage & Addiction Analysis (7500 Rows)](https://www.kaggle.com/datasets/rushi1207/smartphone-usage-and-addiction-analysis-7500-rows)
 - **Size:** 7,500 rows × 15 columns
 - **Target:** `addicted_label` (0 = Not Addicted, 1 = Addicted)
 - **Key features:** `daily_screen_time_hours`, `weekend_screen_time`, `social_media_hours`, `app_opens_per_day`, `gaming_hours`, `sleep_hours`, `notifications_per_day`, `stress_level`, `academic_work_impact`
@@ -60,4 +60,4 @@ streamlit run src/streamlit_app.py
 
 ---
 
-**Author:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-kane-392094410/) · [GitHub portfolio](https://github.com/matthewkane-ml)
+**Author:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-k-392094410/) · [GitHub portfolio](https://github.com/matthewkane-ml)
